@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Stock App{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/output.css') }}"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white py-4">
+      <div class="container mx-auto flex justify-between items-center">
+        <div class="text-xl font-bold">Stock App</div>
+        <ul class="flex space-x-4">
+          <li><a href="/" class="hover:text-gray-300">Home</a></li>
+          <li>
+            <a href="/results" class="hover:text-gray-300">Combined Results</a>
+          </li>
+          <li>
+            <a href="/upload-stock" class="hover:text-gray-300"
+              >Upload Stock File</a
+            >
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!-- Page Content -->
+    <div class="container mx-auto py-8">{% block content %}{% endblock %}</div>
+  </body>
+</html>

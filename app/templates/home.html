@@ -1,0 +1,37 @@
+{% extends "base.html" %} {% block title %}Home - Stock App{% endblock %} {%
+block content %}
+<!-- Header Banner -->
+<div class="bg-blue-500 text-white p-8 rounded-md text-center">
+  <h1 class="text-3xl font-bold">Welcome to Stock App</h1>
+  <p class="mt-2">Analyze stock indicators and make informed decisions.</p>
+</div>
+
+<!-- Indicators Section -->
+<div class="mt-8">
+  <h2 class="text-xl font-bold mb-4">Indicators</h2>
+  <div class="flex items-center">
+    <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
+      &larr; Prev
+    </button>
+    <div class="grid grid-cols-5 gap-4 flex-grow">
+      {% for i in range(5) %}
+      <div class="bg-white shadow p-4 rounded-lg text-center">
+        <h3 class="text-lg font-semibold">Indicator {{ i + 1 }}</h3>
+        <p class="text-gray-500">Dummy Data</p>
+      </div>
+      {% endfor %}
+    </div>
+    <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
+      Next &rarr;
+    </button>
+  </div>
+</div>
+
+<!-- Stock Results -->
+<div class="mt-8">
+  <h2 class="text-xl font-bold mb-4">Stock Results</h2>
+  <div class="bg-white p-6 shadow rounded-lg">
+    <p>Results for selected indicator will appear here.</p>
+  </div>
+</div>
+{% endblock %}

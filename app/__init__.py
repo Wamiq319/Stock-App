@@ -2,10 +2,6 @@ from flask import Flask
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'your_secret_key'  # for sessions or any sensitive data
-
-    # Import and register the routes
-    from app.routes import main
-    app.register_blueprint(main)
-
+    from .routes import app as routes_blueprint
+    app.register_blueprint(routes_blueprint)
     return app
