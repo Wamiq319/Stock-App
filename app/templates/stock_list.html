@@ -1,0 +1,65 @@
+{% extends "base.html" %} {% block title %}Stock List - Stock App{% endblock %}
+{% block content %}
+<!-- Header Section -->
+<div
+  class="flex justify-between items-center bg-blue-400 text-gray-100 p-8 rounded-md"
+>
+  <h1 class="text-3xl font-bold">Available Stock List</h1>
+  <a
+    class="bg-white text-blue-400 px-6 py-2 rounded-md hover:bg-gray-100 font-bold"
+  >
+    Add Stocklist
+  </a>
+</div>
+
+<!-- Table Section -->
+<div class="mt-6">
+  <h2 class="text-xl font-bold mb-4">Stock List</h2>
+
+  <!-- Stock List Table -->
+  <div class="overflow-x-auto bg-white shadow rounded-lg">
+    <table class="min-w-full table-auto">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="px-4 py-2 border">Stock List Name</th>
+          <th class="px-4 py-2 border">Stock Symbols</th>
+          <th class="px-4 py-2 border">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stock in stocks %}
+        <tr>
+          <td class="px-4 py-2 border">{{ stock.name }}</td>
+          <td class="px-4 py-2 border">
+            {% for symbol in stock.symbols %}
+            <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-md mr-2"
+              >{{ symbol }}</span
+            >
+            {% endfor %}
+          </td>
+          <td class="px-4 py-2 border">
+            <button
+              class="text-red-600 hover:text-red-800"
+              onclick="deleteStock('{{ stock.name }}')"
+            >
+              Delete
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- JavaScript to handle delete action -->
+<script>
+  function deleteStock(stockName) {
+    if (
+      confirm("Are you sure you want to delete the stock: " + stockName + "?")
+    ) {
+      alert("Delete functionality for stock: " + stockName);
+    }
+  }
+</script>
+{% endblock %}

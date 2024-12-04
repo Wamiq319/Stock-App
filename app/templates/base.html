@@ -6,28 +6,47 @@
     <title>{% block title %}Stock App{% endblock %}</title>
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/output.css') }}"
+      href="{{ url_for('static', filename='css/tailwind.css') }}"
     />
   </head>
-  <body class="bg-gray-100">
+  <body class="bg-gray-300">
     <!-- Navbar -->
-    <nav class="bg-blue-600 text-white py-4">
+    <nav class="bg-gray-50 text-gray-900 shadow-lg py-4">
       <div class="container mx-auto flex justify-between items-center">
-        <div class="text-xl font-bold">Stock App</div>
-        <ul class="flex space-x-4">
-          <li><a href="/" class="hover:text-gray-300">Home</a></li>
+        <!-- Stock App Icon + Name -->
+        <div class="flex items-center">
+          <i class="fas fa-chart-line text-xl mr-2"></i>
+          <span class="text-xl font-bold">Stock App</span>
+        </div>
+        <!-- Centered Menu -->
+
+        {% set menus = [ {"name": "Home", "url": "/"}, {"name": "Indicator
+        Results", "url": "/indicator-results"}, {"name": "Stock Lists", "url":
+        "/stock-list"} ] %}
+
+        <ul class="flex space-x-6 font-bold">
+          {% for menu in menus %}
           <li>
-            <a href="/results" class="hover:text-gray-300">Combined Results</a>
-          </li>
-          <li>
-            <a href="/upload-stock" class="hover:text-gray-300"
-              >Upload Stock File</a
+            <a
+              href="{{ menu.url }}"
+              class="hover:text-blue-400 hover:border-b-2 hover:border-blue-400 mx-2 {% if request.path == menu.url %}text-blue-400 border-b-2 border-blue-400{% endif %}"
             >
+              {{ menu.name }}
+            </a>
           </li>
+          {% endfor %}
         </ul>
+        <!-- Stock Upload Button -->
+        <a
+          href="/create-stock"
+          class="bg-blue-400 shadow-xl text-gray-50 px-6 py-2 rounded-md hover:bg-blue-500 font-bold"
+        >
+          <i class="fas fa-plus mr-2"></i> Stock Upload
+        </a>
       </div>
     </nav>
+
     <!-- Page Content -->
-    <div class="container mx-auto py-8">{% block content %}{% endblock %}</div>
+    <div class="container mx-auto py-2">{% block content %}{% endblock %}</div>
   </body>
 </html>

@@ -1,37 +1,85 @@
 {% extends "base.html" %} {% block title %}Home - Stock App{% endblock %} {%
 block content %}
 <!-- Header Banner -->
-<div class="bg-blue-500 text-white p-8 rounded-md text-center">
+<div class="bg-blue-400 shadow text-gray-100 p-8 rounded-md text-center">
   <h1 class="text-3xl font-bold">Welcome to Stock App</h1>
   <p class="mt-2">Analyze stock indicators and make informed decisions.</p>
 </div>
 
-<!-- Indicators Section -->
-<div class="mt-8">
-  <h2 class="text-xl font-bold mb-4">Indicators</h2>
-  <div class="flex items-center">
-    <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
-      &larr; Prev
-    </button>
-    <div class="grid grid-cols-5 gap-4 flex-grow">
-      {% for i in range(5) %}
-      <div class="bg-white shadow p-4 rounded-lg text-center">
-        <h3 class="text-lg font-semibold">Indicator {{ i + 1 }}</h3>
-        <p class="text-gray-500">Dummy Data</p>
-      </div>
-      {% endfor %}
-    </div>
-    <button class="text-gray-500 hover:text-gray-700 focus:outline-none">
-      Next &rarr;
-    </button>
-  </div>
-</div>
+<!-- Selection Section -->
+<form method="POST" class="mt-6 flex justify-between items-center">
+  <!-- Left Section for Stock List and Time Frame -->
 
-<!-- Stock Results -->
+  <!-- Stock List Selection -->
+  <div class="w-1/3 mx-3">
+    <label for="stock-list" class="block text-sm font-medium text-gray-700"
+      >Choose Stock List</label
+    >
+    <select
+      id="stock-list"
+      name="stock-list"
+      class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+    >
+      <option value="stock-list-1">Stock List 1</option>
+      <option value="stock-list-2">Stock List 2</option>
+      <option value="stock-list-3">Stock List 3</option>
+    </select>
+  </div>
+
+  <!-- Time Frame Selection -->
+  <div class="w-1/3 mx-3">
+    <label for="time-frame" class="block text-sm font-medium text-gray-700"
+      >Choose Time Frame</label
+    >
+    <select
+      id="time-frame"
+      name="time-frame"
+      class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
+    >
+      <option value="1min">1 Minute</option>
+      <option value="1day">1 Day</option>
+      <option value="8hr">8 Hours</option>
+    </select>
+  </div>
+
+  <!-- Right Section for "Get Stock Data" Button -->
+  <div class="w-1/3 mx-3 flex justify-end align-middle pt-6">
+    <button
+      type="submit"
+      class="bg-blue-400 text-white px-14 py-2 rounded-md font-bold hover:bg-blue-500"
+    >
+      Get Stock Data
+    </button>
+  </div>
+</form>
+
+<!-- Results Section -->
+{% if stock_data %}
 <div class="mt-8">
-  <h2 class="text-xl font-bold mb-4">Stock Results</h2>
-  <div class="bg-white p-6 shadow rounded-lg">
-    <p>Results for selected indicator will appear here.</p>
+  <h2 class="text-xl font-bold mb-4">Stock Data Results</h2>
+
+  <!-- Stock Data Table -->
+  <div class="overflow-x-auto bg-white shadow rounded-lg">
+    <table class="min-w-full table-auto">
+      <thead>
+        <tr class="bg-gray-100">
+          <th class="px-4 py-2 border">Stock Symbol</th>
+          <th class="px-4 py-2 border">Time Frame</th>
+          <th class="px-4 py-2 border">Price</th>
+          <th class="px-4 py-2 border">Indicator</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stock in stock_data %}
+        <tr>
+          <td class="px-4 py-2 border">{{ stock.symbol }}</td>
+          <td class="px-4 py-2 border">{{ stock.time_frame }}</td>
+          <td class="px-4 py-2 border">{{ stock.price }}</td>
+          <td class="px-4 py-2 border">{{ stock.indicator }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
-{% endblock %}
+{% endif %} {% endblock %}
