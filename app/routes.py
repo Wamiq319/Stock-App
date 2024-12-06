@@ -1,11 +1,10 @@
-from flask import Blueprint, request, jsonify, render_template, flash, redirect, url_for
-from app import db
-from app.models import StockList, Timeframe
+from flask import Blueprint, request, jsonify, render_template, redirect
+from . import db
+from .models import StockList  # Import the StockList model
 
-# Define the Blueprint
-bp = Blueprint('main', __name__)
+bp = Blueprint('stocks', __name__)
 
-# Route to get the stock list and timeframe, or save them on POST
+# Route to display stock data
 @bp.route('/', methods=['GET', 'POST'])
 def home():
     stock_data = []
@@ -13,7 +12,7 @@ def home():
         stock_list = request.form.get("stock-list")
         time_frame = request.form.get("time-frame")
         
-        # Example data based on selection (in real use, this will be fetched from a database or API)
+        # Example data based on stock list and time frame (in real use, fetch from DB or API)
         stock_data = [
             {"symbol": "AAPL", "time_frame": time_frame, "price": "$150.00", "indicator": "RSI: 70"},
             {"symbol": "GOOG", "time_frame": time_frame, "price": "$2800.00", "indicator": "MACD: 1.5"},
@@ -21,65 +20,75 @@ def home():
         
     return render_template("home.html", stock_data=stock_data)
 
-@bp.route('/stock-list', methods=['GET'])
-def stock_list():
-    # Fetch all stocks from the database to display
-    stocks = [
-        {
-            "name": "Technology Stocks",
-            "symbols": ["AAPL", "GOOG", "MSFT"]
-        },
-        {
-            "name": "Healthcare Stocks",
-            "symbols": ["JNJ", "PFE"]
-        },
-        {
-            "name": "Energy Stocks",
-            "symbols": ["XOM", "CVX"]
-        }
-    ]
-
-    return render_template('stock_list.html', stocks=stocks)
-
-from flask import render_template, request, redirect
-
+# Route to create a new stock list
 @bp.route('/create-stock', methods=['GET', 'POST'])
 def create_stock():
     if request.method == 'POST':
         stock_name = request.form['stock-list-name']
-        symbols = [request.form[f'stock-symbol-{i}'] for i in range(1, 10) if request.form[f'stock-symbol-{i}']]
         
-        # Add stock to the database (this step is missing in your current code)
-        # Assuming you have a function to add to DB, like `add_stock(stock_name, symbols)`
+        # Check if stock list name already exists
+        existing_stock_list = StockList.query.filter_by(name=stock_name).first()
+        if existing_stock_list:
+            return jsonify({"error": "Stock list name already exists"}), 400
         
-        # Redirect to the stock list after form submission
-        return redirect('/stock-list')
+        # Collect stock symbols (only if they are provided)
+        symbols = [request.form.get(f'stock-symbol-{i}') for i in range(1, 10) if request.form.get(f'stock-symbol-{i}')]
+        if not symbols:
+            return jsonify({"error": "At least one stock symbol is required"}), 400
+
+        # Convert all symbols to uppercase
+        symbols = [symbol.upper() for symbol in symbols]
+        
+        # Create the stock list and add to the database
+        stock_list = StockList(name=stock_name, stock_symbols=symbols)
+        db.session.add(stock_list)
+        db.session.commit()
+
+        return jsonify({"message": "Stock list created successfully", "id": stock_list.id}), 201
+
+    return render_template('stock_form.html', is_update=False)  # You can pass `stock` if you need to edit or show existing stock list.
+
+# Route to display stock list grouped by category (Assuming Stock has a category field, adjust accordingly)
+@bp.route('/stock-list', methods=['GET'])
+def stock_list():
+    stocks = StockList.query.all()  # Get all stock lists from the database
+    stock_groups = {}
+
+    # Categorize stocks based on their 'category' field (adjust as per DB structure)
+    for stock in stocks:
+        category = stock.name  # Adjust this if you need to categorize based on another field
+        stock_groups.setdefault(category, []).append({
+            'id': stock.id,
+            'symbol': stock.name
+        })
     
-    # Create an empty stock object for the form when it's not a POST request
-    stock = {
-        'name': '',
-        'symbols': [''] * 9,  # Empty symbols for 9 stock symbols
-        'last_updated': None
-    }
+    # Prepare stock data for template rendering
+    stock_data = [{"name": category, "stocks": symbols} for category, symbols in stock_groups.items()]
+    
+    return render_template('stock_list.html', stocks=stock_data)
 
-    return render_template('stock_form.html', is_update=False, stock=stock)
-
-
+# Route to update an existing stock list
 @bp.route('/update-stock/<int:stock_id>', methods=['GET', 'POST'])
 def update_stock(stock_id):
-    stock = get_stock_by_id(stock_id)  # Fetch stock from database
+    stock = StockList.query.get_or_404(stock_id)  # Fetch stock by ID (or 404 if not found)
+    
     if request.method == 'POST':
         stock_name = request.form['stock-list-name']
-        symbols = [request.form[f'stock-symbol-{i}'] for i in range(1, 11) if request.form[f'stock-symbol-{i}']]
+        symbols = [request.form[f'stock-symbol-{i}'] for i in range(1, 11) if request.form.get(f'stock-symbol-{i}')]
+        
         # Update stock in the database
+        stock.name = stock_name
+        stock.stocks = ",".join([symbol.upper() for symbol in symbols])  # Update symbols as a comma-separated string
+        db.session.commit()
+        
         return redirect('/stock-list')
+    
     return render_template('stock_form.html', is_update=True, stock=stock)
 
-from flask import render_template
-
+# Route to display indicator results (Example for testing)
 @bp.route('/indicator-results', methods=['GET', 'POST'])
 def indicator_results():
-    # Dummy data for testing
+    # Example data for testing (replace with actual data fetching)
     indicator_results = [
         {"symbol": "AAPL", "date": "2024-12-01", "indicator_value": 150},
         {"symbol": "GOOG", "date": "2024-12-01", "indicator_value": 1250},

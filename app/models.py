@@ -1,21 +1,16 @@
-from app import db
+from . import db  # Import db from __init__.py
 
-# Stock List model
 class StockList(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(120), nullable=False)
-    symbols = db.Column(db.String(500), nullable=False)  # List of stock symbols as a comma-separated string
+    name = db.Column(db.String(100), nullable=False)
+    stocks = db.Column(db.String(100), nullable=False)  # Storing stock symbols as a comma-separated string
 
-    def __repr__(self):
-        return f'<Stock List {self.name}>'
+    def __init__(self, name, stock_symbols):
+        self.name = name
+        if len(stock_symbols) <= 9:
+            self.stocks = ",".join(stock_symbols)  # Store as a comma-separated string
+        else:
+            raise ValueError("A maximum of 9 stock symbols are allowed")
 
-# Timeframe model associated with a stock list
-class Timeframe(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    stock_list_id = db.Column(db.Integer, db.ForeignKey('stock_list.id'), nullable=False)
-    timeframe = db.Column(db.String(20), nullable=False)
-
-    stock_list = db.relationship('StockList', backref=db.backref('timeframes', lazy=True))
-
-    def __repr__(self):
-        return f'<Timeframe {self.timeframe} for {self.stock_list.name}>'
+    def get_stocks(self):
+        return self.stocks.split(",") if self.stocks else []

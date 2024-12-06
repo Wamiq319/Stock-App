@@ -1,7 +1,6 @@
 {% extends "base.html" %} {% block title %} {% if is_update %}Update Stock List
 - Stock App{% else %}Create Stock List - Stock App{% endif %} {% endblock %} {%
 block content %}
-
 <!-- Header Banner -->
 <div class="bg-blue-400 shadow-lg text-gray-100 p-8 rounded-md text-center">
   <h1 class="text-3xl font-bold">
@@ -14,7 +13,7 @@ block content %}
 </div>
 
 <!-- Stock List Form -->
-<div class="mt-4 mx-auto max-w-7xl bg-white shadow-md rounded-lg p-8 flex">
+<div class="mt-6 mx-auto max-w-7xl bg-white shadow-md rounded-lg p-8 flex">
   <!-- Form Section -->
   <div class="w-2/3 pr-6">
     <h2 class="text-xl font-bold mb-6 text-center">
@@ -40,7 +39,14 @@ block content %}
           name="stock-list-name"
           class="mt-1 block mx-auto w-2/3 px-4 py-2 border border-gray-300 rounded-md"
           placeholder="Enter stock list name"
+          {%
+          if
+          is_update
+          %}
           value="{{ stock.name }}"
+          {%
+          endif
+          %}
           required
         />
       </div>
@@ -61,7 +67,14 @@ block content %}
             name="stock-symbol-{{ i }}"
             class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
             placeholder="Optional (e.g., AAPL, GOOG)"
+            {%
+            if
+            is_update
+            %}
             value="{{ stock.symbols[i-1] }}"
+            {%
+            endif
+            %}
           />
         </div>
         {% endfor %}
@@ -85,8 +98,8 @@ block content %}
     <h3 class="text-lg font-semibold mb-4">Stock List Info</h3>
     <p><strong>Total Symbols:</strong> 9</p>
     <p>
-      <strong>Last Updated:</strong> {{ stock.last_updated if stock.last_updated
-      else 'N/A' }}
+      <strong>Last Updated:</strong> {% if is_update %} {{ stock.last_updated }}
+      {% else %} N/A {% endif %}
     </p>
     <p>
       <strong>Status:</strong> {% if is_update %}Active{% else %}Pending{% endif
@@ -94,5 +107,4 @@ block content %}
     </p>
   </div>
 </div>
-
 {% endblock %}

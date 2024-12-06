@@ -7,9 +7,9 @@
   <h1 class="text-3xl font-bold">Available Stock List</h1>
   <a
     class="bg-white text-blue-400 px-6 py-2 rounded-md hover:bg-gray-100 font-bold"
+    href="/add-stock"
+    >Add Stocklist</a
   >
-    Add Stocklist
-  </a>
 </div>
 
 <!-- Table Section -->
@@ -31,16 +31,22 @@
         <tr>
           <td class="px-4 py-2 border">{{ stock.name }}</td>
           <td class="px-4 py-2 border">
-            {% for symbol in stock.symbols %}
+            {% for s in stock.stocks %}
             <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-md mr-2"
-              >{{ symbol }}</span
+              >{{ s.symbol }}</span
             >
             {% endfor %}
           </td>
           <td class="px-4 py-2 border">
+            <!-- Link to stock details or delete -->
+            <a
+              href="/stock/{{ stock.id }}"
+              class="text-blue-600 hover:text-blue-800"
+              >View</a
+            >
             <button
-              class="text-red-600 hover:text-red-800"
-              onclick="deleteStock('{{ stock.name }}')"
+              class="text-red-600 hover:text-red-800 ml-4"
+              onclick="deleteStock( stock.id )"
             >
               Delete
             </button>
@@ -54,11 +60,10 @@
 
 <!-- JavaScript to handle delete action -->
 <script>
-  function deleteStock(stockName) {
-    if (
-      confirm("Are you sure you want to delete the stock: " + stockName + "?")
-    ) {
-      alert("Delete functionality for stock: " + stockName);
+  function deleteStock(stockId) {
+    if (confirm("Are you sure you want to delete this stock?")) {
+      // Call backend to delete stock using stockId
+      alert("Delete functionality for stock ID: " + stockId);
     }
   }
 </script>
