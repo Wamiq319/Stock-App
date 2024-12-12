@@ -7,9 +7,10 @@
   <h1 class="text-3xl font-bold">Available Stock List</h1>
   <a
     class="bg-white text-blue-400 px-6 py-2 rounded-md hover:bg-gray-100 font-bold"
-    href="/add-stock"
-    >Add Stocklist</a
+    href="/create-stock"
   >
+    Add Stocklist
+  </a>
 </div>
 
 <!-- Table Section -->
@@ -27,26 +28,27 @@
         </tr>
       </thead>
       <tbody>
-        {% for stock in stocks %}
+        {% for stock_list in stock_lists %}
         <tr>
-          <td class="px-4 py-2 border">{{ stock.name }}</td>
+          <td class="px-4 py-2 border">{{ stock_list.name }}</td>
           <td class="px-4 py-2 border">
-            {% for s in stock.stocks %}
-            <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-md mr-2"
-              >{{ s.symbol }}</span
-            >
+            {% for stock in stock_list.stocks %}
+            <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-md mr-2">
+              {{ stock}}
+            </span>
             {% endfor %}
           </td>
           <td class="px-4 py-2 border">
             <!-- Link to stock details or delete -->
             <a
-              href="/stock/{{ stock.id }}"
+              href="/stock/{{ stock_list.id }}"
               class="text-blue-600 hover:text-blue-800"
-              >View</a
             >
+              View
+            </a>
             <button
               class="text-red-600 hover:text-red-800 ml-4"
-              onclick="deleteStock( stock.id )"
+              onclick="deleteStock(stock_list.id )"
             >
               Delete
             </button>

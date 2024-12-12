@@ -1,100 +1,123 @@
-from flask import Blueprint, request, jsonify, render_template, redirect
+from flask import Blueprint, request, flash, render_template, redirect, url_for
 from . import db
-from .models import StockList  # Import the StockList model
+from .models import StockList
+from app.utils.stocks_utils import fetch_stock_data
+from . import setup_logger
 
 bp = Blueprint('stocks', __name__)
 
-# Route to display stock data
+logger = setup_logger("ROUTES")
+
 @bp.route('/', methods=['GET', 'POST'])
 def home():
-    stock_data = []
-    if request.method == "POST":
-        stock_list = request.form.get("stock-list")
-        time_frame = request.form.get("time-frame")
-        
-        # Example data based on stock list and time frame (in real use, fetch from DB or API)
-        stock_data = [
-            {"symbol": "AAPL", "time_frame": time_frame, "price": "$150.00", "indicator": "RSI: 70"},
-            {"symbol": "GOOG", "time_frame": time_frame, "price": "$2800.00", "indicator": "MACD: 1.5"},
-        ]
-        
-    return render_template("home.html", stock_data=stock_data)
+    stock_lists = [
+        {
+            'id': stock_list.id,
+            'name': stock_list.name,
+            'total_stocks': len(stock_list.stocks.split(',')) if stock_list.stocks else 0
+        }
+        for stock_list in StockList.query.all()
+        if stock_list.stocks and len(stock_list.stocks.split(',')) > 0
+    ]
 
-# Route to create a new stock list
+    try:
+        if request.method == 'POST':
+            data = request.form
+            stock_list_id = data.get('stock-list')
+            time_frame = data.get('time-frame')
+            selected_stock_list = StockList.query.filter_by(id=stock_list_id).first()
+            stocks = selected_stock_list.stocks.split(',')
+
+            logger.info("Fetching stock data (home route)")
+            fetch_stock_data("IBM", time_frame)
+
+    except Exception as e:
+        logger.error(" Error fetching stock data: {e}")
+        flash("Failed to fetch stock data", "error")
+
+    return render_template("home.html", stock_lists=stock_lists, indicators_result=None)
+
 @bp.route('/create-stock', methods=['GET', 'POST'])
-def create_stock():
+def create_or_update_stock():
+    error = False
+    stock = None
+
+    if 'stock-id' in request.args:
+        stock_id = request.args.get('stock-id')
+        stock = StockList.query.get(stock_id)
+        if not stock:
+            flash("Stock list not found", "error")
+            logger.warning("Stock list not found")
+            return redirect(url_for('stocks.create_or_update_stock'))
+
     if request.method == 'POST':
-        stock_name = request.form['stock-list-name']
-        
-        # Check if stock list name already exists
-        existing_stock_list = StockList.query.filter_by(name=stock_name).first()
-        if existing_stock_list:
-            return jsonify({"error": "Stock list name already exists"}), 400
-        
-        # Collect stock symbols (only if they are provided)
+        stock_list_name = request.form['stock-list-name']
+        logger.info(f"(create-stock route) Creating/updating stock list: {stock_list_name}")
+
+        existing_stock_list = StockList.query.filter_by(name=stock_list_name).first()
+        if existing_stock_list and existing_stock_list.id != (stock.id if stock else None):
+            flash("Stock list name already exists", "error")
+            logger.warning(f"(create-stock route) Duplicate stock list name: {stock_list_name}")
+            error = True
+
         symbols = [request.form.get(f'stock-symbol-{i}') for i in range(1, 10) if request.form.get(f'stock-symbol-{i}')]
         if not symbols:
-            return jsonify({"error": "At least one stock symbol is required"}), 400
+            flash("At least one stock symbol is required", "error")
+            logger.warning("(create-stock route) No stock symbols provided")
+            error = True
 
-        # Convert all symbols to uppercase
+        if error:
+            return render_template('stock_form.html', stock=stock, is_update=bool(stock))
+
         symbols = [symbol.upper() for symbol in symbols]
-        
-        # Create the stock list and add to the database
-        stock_list = StockList(name=stock_name, stock_symbols=symbols)
-        db.session.add(stock_list)
-        db.session.commit()
+        stock_list_name = stock_list_name.upper()
 
-        return jsonify({"message": "Stock list created successfully", "id": stock_list.id}), 201
+        try:
+            if stock:
+                stock.name = stock_list_name
+                stock.stock_symbols = symbols
+                logger.info(f"(create-stock route) Updated stock list: {stock_list_name}")
+            else:
+                stock = StockList(name=stock_list_name, stock_symbols=symbols)
+                db.session.add(stock)
+                logger.info(f"(create-stock route) Created new stock list: {stock_list_name}")
 
-    return render_template('stock_form.html', is_update=False)  # You can pass `stock` if you need to edit or show existing stock list.
+            db.session.commit()
+            flash("Stock list created/updated successfully", "success")
+        except Exception as e:
+            logger.error(f"(create-stock route) Error saving stock list: {e}")
+            flash("Error creating/updating stock list", "error")
 
-# Route to display stock list grouped by category (Assuming Stock has a category field, adjust accordingly)
+        return render_template('stock_form.html', stock=stock, is_update=True)
+
+    return render_template('stock_form.html', stock=stock, is_update=bool(stock))
+
 @bp.route('/stock-list', methods=['GET'])
 def stock_list():
-    stocks = StockList.query.all()  # Get all stock lists from the database
-    stock_groups = {}
+    try:
+        stock_groups = [
+            {
+                'id': stock_list.id,
+                'name': stock_list.name,
+                'stocks': stock_list.stocks.split(',') if stock_list.stocks else []
+            }
+            for stock_list in StockList.query.all()
+        ]
+        logger.info(f"(stock-list route) Prepared {len(stock_groups)} stock groups")
+    except Exception as e:
+        logger.error(f"(stock-list route) Error preparing stock list: {e}")
+        stock_groups = []
 
-    # Categorize stocks based on their 'category' field (adjust as per DB structure)
-    for stock in stocks:
-        category = stock.name  # Adjust this if you need to categorize based on another field
-        stock_groups.setdefault(category, []).append({
-            'id': stock.id,
-            'symbol': stock.name
-        })
-    
-    # Prepare stock data for template rendering
-    stock_data = [{"name": category, "stocks": symbols} for category, symbols in stock_groups.items()]
-    
-    return render_template('stock_list.html', stocks=stock_data)
+    return render_template('stock_list.html', stock_lists=stock_groups)
 
-# Route to update an existing stock list
-@bp.route('/update-stock/<int:stock_id>', methods=['GET', 'POST'])
-def update_stock(stock_id):
-    stock = StockList.query.get_or_404(stock_id)  # Fetch stock by ID (or 404 if not found)
-    
-    if request.method == 'POST':
-        stock_name = request.form['stock-list-name']
-        symbols = [request.form[f'stock-symbol-{i}'] for i in range(1, 11) if request.form.get(f'stock-symbol-{i}')]
-        
-        # Update stock in the database
-        stock.name = stock_name
-        stock.stocks = ",".join([symbol.upper() for symbol in symbols])  # Update symbols as a comma-separated string
-        db.session.commit()
-        
-        return redirect('/stock-list')
-    
-    return render_template('stock_form.html', is_update=True, stock=stock)
-
-# Route to display indicator results (Example for testing)
 @bp.route('/indicator-results', methods=['GET', 'POST'])
 def indicator_results():
-    # Example data for testing (replace with actual data fetching)
     indicator_results = [
         {"symbol": "AAPL", "date": "2024-12-01", "indicator_value": 150},
         {"symbol": "GOOG", "date": "2024-12-01", "indicator_value": 1250},
         {"symbol": "AMZN", "date": "2024-12-01", "indicator_value": 3500},
     ]
-    
-    selected_stock_list = "Stock List 1"  # Example static value for testing
+    selected_stock_list = "Stock List 1"
+    logger.info(f"(indicator-results route) Displaying results for {selected_stock_list}")
 
     return render_template('indicator_results.html', indicator_results=indicator_results, selected_stock_list=selected_stock_list)
