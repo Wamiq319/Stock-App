@@ -20,16 +20,18 @@ def home():
         if stock_list.stocks and len(stock_list.stocks.split(',')) > 0
     ]
 
-    try:
+    try: 
         if request.method == 'POST':
             data = request.form
             stock_list_id = data.get('stock-list')
             time_frame = data.get('time-frame')
             selected_stock_list = StockList.query.filter_by(id=stock_list_id).first()
             stocks = selected_stock_list.stocks.split(',')
-
+            # Example Usage
+            stock_symbol = 'AAPL'
             logger.info("Fetching stock data (home route)")
-            fetch_stock_data("IBM", time_frame)
+            Stock_Data= fetch_stock_data(stock_symbol, time_frame)
+            logger.info(f"Data : {Stock_Data}")
 
     except Exception as e:
         logger.error(" Error fetching stock data: {e}")

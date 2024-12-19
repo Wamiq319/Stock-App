@@ -37,11 +37,6 @@ def create_app():
 
     logger = setup_logger("app_logger")
 
-    log = logging.getLogger('werkzeug')
-    log.setLevel(logging.ERROR)
-
-    logging.getLogger().setLevel(logging.ERROR)
-
     db.init_app(app)
 
     from .routes import bp as routes_blueprint

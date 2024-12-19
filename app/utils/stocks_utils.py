@@ -1,78 +1,180 @@
 import requests
 import pandas as pd
-from .. import setup_logger 
-
-# Set up logging
+from datetime import datetime, timedelta
+import traceback
+from .. import setup_logger
 
 logger = setup_logger("Stock-Utils")
 
-# Function to fetch and process data based on the time frame
-def fetch_stock_data(symbol, time_frame, api_key="X4VE8829GA6AZNHI"):
-    base_url = "https://www.alphavantage.co/query"
-    logger.info(f"Fetching stock data for symbol: {symbol}, time frame: {time_frame}")
+# Alpaca API details
+ALPACA_API_KEY = 'your_alpaca_api_key'
+ALPACA_API_SECRET = 'your_alpaca_api_secret'
+ALPACA_BASE_URL = 'https://data.alpaca.markets/v2/stocks/bars'
 
-    if time_frame == 'daily':
-        function = "TIME_SERIES_DAILY"
-        interval = None
-    elif time_frame == '1hour':
-        function = "TIME_SERIES_INTRADAY"
-        interval = "60min"
-    elif time_frame == '8hours':
-        function = "TIME_SERIES_INTRADAY"
-        interval = "60min"
-    else:
-        logger.error(f"Invalid time frame: {time_frame}")
-        raise ValueError("Invalid time frame. Choose from '1hour', '8hours', or 'daily'.")
+# Polygon API details
+POLYGON_API_KEY = 'your_polygon_api_key'
+POLYGON_URL = 'https://api.polygon.io/v2/aggs/ticker'
 
-    url = f"{base_url}?function={function}&symbol={symbol}&apikey={api_key}"
-    if interval:
-        url += f"&interval={interval}"
+# Alpha Vantage API details
+ALPHA_VANTAGE_API_KEY = 'X4VE8829GA6AZNHI'
+ALPHA_VANTAGE_URL = 'https://www.alphavantage.co/query'
 
-    logger.debug(f"API URL constructed: {url}")
+
+# Function to fetch Alpaca data
+def fetch_alpaca_data(stock_symbol, timeframe):
     try:
-        response = requests.get(url)
-        response.raise_for_status()
+        logger.debug(f"Fetching Alpaca data for {stock_symbol} with timeframe {timeframe}")
+
+        end_date = datetime.utcnow()
+
+        # Determine the start date based on the timeframe
+        if timeframe == '1D':
+            start_date = end_date - timedelta(days=1)
+        elif timeframe == '1h':
+            start_date = end_date - timedelta(hours=1)
+        elif timeframe == '8h':
+            start_date = end_date - timedelta(hours=8)
+        else:
+            start_date = end_date - timedelta(days=365)
+
+        start_date_str = start_date.isoformat() + "Z"
+
+        url = f"{ALPACA_BASE_URL}?symbols={stock_symbol}&timeframe={timeframe}&start={start_date_str}&limit=100&sort=desc"
+        
+        headers = {
+            'APCA-API-KEY-ID': ALPACA_API_KEY,
+            'APCA-API-SECRET-KEY': ALPACA_API_SECRET
+        }
+        
+        response = requests.get(url, headers=headers)
         data = response.json()
-        logger.debug("API response received successfully")
-    except requests.exceptions.RequestException as e:
-        logger.error(f"API request failed: {e}")
+
+        if 'bars' in data:
+            df = pd.DataFrame(data['bars'])
+            df['time'] = pd.to_datetime(df['timestamp'], unit='s')
+            return df[['time', 'open', 'high', 'low', 'close', 'volume']]
+        else:
+            logger.error("Error fetching Alpaca data: Bars not found")
+            raise Exception("Error fetching Alpaca data")
+
+    except Exception as e:
+        logger.error(f"Exception in fetch_alpaca_data: {e}\n{traceback.format_exc()}")
         raise
 
-    # Check for errors or information messages in the API response
-    if 'Error Message' in data:
-        logger.error(f"API Error: {data['Error Message']}")
-        raise ValueError(f"API Error: {data['Error Message']}")
-    elif 'Information' in data:
-        logger.warning(f"API Information: {data['Information']}")
-        raise ValueError(f"API Information: {data['Information']}")
-    elif 'Note' in data:
-        logger.warning(f"API Note: {data['Note']}")
-        raise ValueError(f"API Note: {data['Note']}")
 
-    # Extract time series data
-    if 'Time Series (60min)' in data:
-        time_series = data['Time Series (60min)']
-    elif 'Time Series (Daily)' in data:
-        time_series = data['Time Series (Daily)']
-    else:
-        logger.error("Unexpected data structure in API response")
-        raise ValueError("Error fetching data from API")
+# Function to fetch Polygon data
+def fetch_polygon_data(stock_symbol, timeframe):
+    try:
+        logger.debug(f"Fetching Polygon data for {stock_symbol} with timeframe {timeframe}")
+        
+        end_date = datetime.utcnow()
 
-    # Convert to DataFrame
-    df = pd.DataFrame.from_dict(time_series, orient='index')
-    df = df.astype({'1. open': 'float', '2. high': 'float', '3. low': 'float', '4. close': 'float', '5. volume': 'int'})
-    df.index = pd.to_datetime(df.index)
+        if timeframe == '1D':
+            start_date = end_date - timedelta(days=1)
+        elif timeframe == '1h':
+            start_date = end_date - timedelta(hours=1)
+        elif timeframe == '8h':
+            start_date = end_date - timedelta(hours=8)
+        else:
+            start_date = end_date - timedelta(days=365)
 
-    # Resample data if required
-    if time_frame == '8hours':
-        logger.info("Resampling data for 8-hour intervals")
-        df = df.resample('8H').agg({
-            '1. open': 'first',
-            '2. high': 'max',
-            '3. low': 'min',
-            '4. close': 'last',
-            '5. volume': 'sum'
-        })
+        start_date_str = start_date.isoformat()
 
-    logger.info(f"Data fetched and processed for symbol: {symbol}, time frame: {time_frame}")
-    return df
+        url = f"{POLYGON_URL}/{stock_symbol}/range/1/minute/{start_date_str}/{end_date.isoformat()}"
+
+        params = {'apiKey': POLYGON_API_KEY}
+        
+        response = requests.get(url, params=params)
+        data = response.json()
+
+        if 'results' in data:
+            df = pd.DataFrame(data['results'])
+            df['time'] = pd.to_datetime(df['t'], unit='ms')
+            return df[['time', 'o', 'h', 'l', 'c', 'v']]
+        else:
+            logger.error("Error fetching Polygon data: Results not found")
+            raise Exception("Error fetching Polygon data")
+
+    except Exception as e:
+        logger.error(f"Exception in fetch_polygon_data: {e}\n{traceback.format_exc()}")
+        raise
+
+
+# Function to fetch Alpha Vantage data
+def fetch_alpha_vantage_data(stock_symbol, timeframe):
+    try:
+        if timeframe == '1D':
+            function = 'TIME_SERIES_DAILY'
+        elif timeframe == '1h':
+            function = 'TIME_SERIES_INTRADAY'
+            interval = '60min'
+        elif timeframe == '8h':
+            function = 'TIME_SERIES_INTRADAY'
+            interval = '240min'
+        else:
+            function = 'TIME_SERIES_DAILY'
+
+        params = {
+            'function': function,
+            'symbol': stock_symbol,
+            'apikey': ALPHA_VANTAGE_API_KEY
+        }
+
+        if function == 'TIME_SERIES_INTRADAY':
+            params['interval'] = interval
+
+        response = requests.get(ALPHA_VANTAGE_URL, params=params)
+        data = response.json()
+       
+
+        if function == 'TIME_SERIES_DAILY' and 'Time Series (Daily)' in data:
+            df = pd.DataFrame(data["Time Series (Daily)"]).T
+            df.index = pd.to_datetime(df.index)
+            df = df.sort_index(ascending=False)
+            recent_26_data = df.head(26)
+            recent_26_data = recent_26_data.reset_index().rename(columns={'index': 'Eastern-time-zone'})
+            return recent_26_data
+
+        elif function == 'TIME_SERIES_INTRADAY' and f'Time Series ({interval})' in data:
+            df = pd.DataFrame(data[f'Time Series ({interval})']).T
+            df['time'] = pd.to_datetime(df.index)
+            df = df.sort_values(by='time', ascending=False)
+            recent_26_data = df.head(26)
+            recent_26_data = recent_26_data.reset_index().rename(columns={'index': 'Eastern-time-zone'})
+            return recent_26_data
+        else:
+            raise Exception("Error fetching Alpha Vantage data")
+
+    except Exception as e:
+        logger.error(f"Exception in fetch_alpha_vantage_data: {e}\n{traceback.format_exc()}")
+        raise
+
+
+# Main function to fetch stock data based on the timeframe and stock symbol
+def fetch_stock_data(stock_symbol, timeframe):
+    try:
+        
+        logger.debug(f"Fetching stock data for {stock_symbol} with timeframe {timeframe}")
+
+        # Switch-like logic to fetch data from different APIs
+        if timeframe not in ['1h', '8h', '1D']:
+            logger.error("Invalid timeframe provided.")
+            raise Exception("Invalid timeframe")
+
+        # Choose which API to fetch data from based on the timeframe
+        if timeframe == '1D':
+            # Choose one API based on preference, Alpaca or Polygon or Alpha Vantage
+            Data = fetch_alpha_vantage_data(stock_symbol, timeframe) 
+            return Data
+        elif timeframe == '1h':
+            # Fetch data from Polygon API for intraday (1 hour data)
+            Data = fetch_alpha_vantage_data(stock_symbol, timeframe)
+            return Data
+        elif timeframe == '8h':
+            # Fetch data from Alpha Vantage for 8-hour data
+            Data = fetch_alpha_vantage_data(stock_symbol, timeframe)
+            return Data
+
+    except Exception as e:
+        logger.error(f"Error fetching stock data: {e}\n{traceback.format_exc()}")
+        return None
