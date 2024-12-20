@@ -59,8 +59,14 @@ def fetch_alpaca_data(stock_symbol, timeframe_hours, interval_hours):
             next_page_token = response.get('next_page_token')
             data = response['bars'][stock_symbol]
             Data.extend(data)
-        
-        return Data
+        df = pd.DataFrame(Data)
+        df['t'] = pd.to_datetime(df['t'])
+        df = df[['t', 'h', 'l', 'c', 'o', 'v']]
+        df = df.rename(columns={'t': 'Eastern-time-zone', 'h': 'High', 'l': 'Low', 'c': 'Close', 'o': 'Open', 'v': 'Volume'})
+        df = df.sort_values(by='Eastern-time-zone', ascending=False)
+        recent_26_data = df.head(26)
+        recent_26_data = recent_26_data.reset_index(drop=True)
+        return recent_26_data
     except Exception as e:
         logger.error(f"An error occurred while fetching Alpaca data: {str(e)}")
         raise
@@ -145,10 +151,10 @@ def fetch_stock_data(stock_symbol, timeframe):
         elif timeframe == '23H':
             data = fetch_alpaca_data(stock_symbol, 23,23)
             return data
-        elif timeframe == '1h':
+        elif timeframe == '1H':
             data = fetch_alpaca_data(stock_symbol, 1,1)
             return data
-        elif timeframe == '8h':
+        elif timeframe == '8H':
             data = fetch_alpaca_data(stock_symbol, 8,8)
             return data
 
