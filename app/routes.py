@@ -2,6 +2,7 @@ from flask import Blueprint, request, flash, render_template, redirect, url_for
 from . import db
 from .models import StockList
 from app.utils.stocks_utils import fetch_stock_data
+from app.utils.indicators_utils import calculate_rsi,calculate_adx,calculate_macd
 from . import setup_logger
 
 bp = Blueprint('stocks', __name__)
@@ -28,16 +29,31 @@ def home():
             selected_stock_list = StockList.query.filter_by(id=stock_list_id).first()
             stocks = selected_stock_list.stocks.split(',')
             # Example Usage
-            stock_symbol = 'AAPL'
-            logger.info("Fetching stock data (home route)")
-            Stock_Data= fetch_stock_data(stock_symbol, time_frame)
-            print(Stock_Data)
+            Data = []
+            
+            for stock_symbol in stocks:
+                Stock_Data= fetch_stock_data(stock_symbol, time_frame)
+                rsi_value = calculate_rsi(Stock_Data)
+                macd_value = calculate_macd(Stock_Data)
+                adx_value = calculate_adx(Stock_Data)
+                most_recent_data = Stock_Data.iloc[0]
+                recent_data = {
+                'timestamp': most_recent_data['UTC-time-zone'].strftime('%Y-%m-%d %H:%M:%S'), 
+                'high': int(most_recent_data['High']), 
+                'low': int(most_recent_data['Low']),   
+                'close': int(most_recent_data['Close']),  
+                'open': int(most_recent_data['Open']),   
+                'volume': int(most_recent_data['Volume'])  
+                }
 
+                Data.append({"symbol": stock_symbol, "rsi": rsi_value, "macd": macd_value, "adx": adx_value, "recent_data": recent_data})
+            print(Data)
+            return render_template("home.html", stock_lists=stock_lists,Data=Data)
     except Exception as e:
         logger.error(" Error fetching stock data: {e}")
         flash("Failed to fetch stock data", "error")
 
-    return render_template("home.html", stock_lists=stock_lists, indicators_result=None)
+    return render_template("home.html", stock_lists=stock_lists,Data=None)
 
 @bp.route('/create-stock', methods=['GET', 'POST'])
 def create_or_update_stock():

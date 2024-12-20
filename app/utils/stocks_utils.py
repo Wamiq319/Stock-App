@@ -36,7 +36,11 @@ def fetch_alpaca_data(stock_symbol, timeframe_hours, interval_hours):
         start_date_str = start_date.isoformat() + "Z"  # Convert to ISO format with 'Z' for UTC
 
         # Construct the API URL
-        url = f"{ALPACA_BASE_URL}?symbols={stock_symbol}&timeframe={timeframe_hours}H&start={start_date_str}&limit=100&sort=desc"
+        if(timeframe_hours == "1D"):
+            url = f"{ALPACA_BASE_URL}?symbols={stock_symbol}&timeframe={timeframe_hours}&start={start_date_str}&limit=100&sort=desc"
+        else:
+            url = f"{ALPACA_BASE_URL}?symbols={stock_symbol}&timeframe={timeframe_hours}H&start={start_date_str}&limit=100&sort=desc"
+        
         logger.debug(f"API URL: {url}")
 
         # Set headers for API request
@@ -52,7 +56,10 @@ def fetch_alpaca_data(stock_symbol, timeframe_hours, interval_hours):
         next_page_token = response.get('next_page_token')
         Data = response['bars'][stock_symbol]
         while next_page_token:
-            url = f"{ALPACA_BASE_URL}?symbols={stock_symbol}&timeframe={timeframe_hours}H&start={start_date_str}&limit=100&sort=desc&page_token={next_page_token}"
+            if timeframe_hours == "1D":
+                url = f"{ALPACA_BASE_URL}?symbols={stock_symbol}&timeframe={timeframe_hours}&start={start_date_str}&limit=100&sort=desc&page_token={next_page_token}"
+            else:
+                url = f"{ALPACA_BASE_URL}?symbols={stock_symbol}&timeframe={timeframe_hours}H&start={start_date_str}&limit=100&sort=desc&page_token={next_page_token}"
             response = requests.get(url, headers=headers)
             response.raise_for_status()
             response = response.json()
@@ -62,8 +69,8 @@ def fetch_alpaca_data(stock_symbol, timeframe_hours, interval_hours):
         df = pd.DataFrame(Data)
         df['t'] = pd.to_datetime(df['t'])
         df = df[['t', 'h', 'l', 'c', 'o', 'v']]
-        df = df.rename(columns={'t': 'Eastern-time-zone', 'h': 'High', 'l': 'Low', 'c': 'Close', 'o': 'Open', 'v': 'Volume'})
-        df = df.sort_values(by='Eastern-time-zone', ascending=False)
+        df = df.rename(columns={'t': 'UTC-time-zone', 'h': 'High', 'l': 'Low', 'c': 'Close', 'o': 'Open', 'v': 'Volume'})
+        df = df.sort_values(by='UTC-time-zone', ascending=False)
         recent_26_data = df.head(26)
         recent_26_data = recent_26_data.reset_index(drop=True)
         return recent_26_data
@@ -146,7 +153,7 @@ def fetch_stock_data(stock_symbol, timeframe):
 
         # Fetch data based on the timeframe
         if timeframe == '1D':
-            data = fetch_alpha_vantage_data(stock_symbol,timeframe)
+            data = fetch_alpaca_data(stock_symbol,"1D",24)
             return data
         elif timeframe == '23H':
             data = fetch_alpaca_data(stock_symbol, 23,23)

@@ -36,7 +36,7 @@ block content %}
     <select
       id="time-frame"
       name="time-frame"
-      class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md w"
+      class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
     >
       <option value="1D">Daily</option>
       <option value="23H">23 Hours</option>
@@ -57,7 +57,7 @@ block content %}
 </form>
 
 <!-- Results Section -->
-{% if indicators_result %}
+{% if Data %}
 <div class="mt-8">
   <h2 class="text-xl font-bold mb-4">Stock Data Results</h2>
 
@@ -67,18 +67,43 @@ block content %}
       <thead>
         <tr class="bg-gray-100">
           <th class="px-4 py-2 border">Stock</th>
-          <th class="px-4 py-2 border">Results</th>
+          <th class="px-4 py-2 border">RSI</th>
+          <th class="px-4 py-2 border">MACD</th>
+          <th class="px-4 py-2 border">ADX</th>
+          <th class="px-4 py-2 border">Most Recent Data Point</th>
         </tr>
       </thead>
       <tbody>
-        <!-- {% for stock in stock_data %}
-          <tr>
-            <td class="px-4 py-2 border">{{ stock.symbol }}</td>
-            <td class="px-4 py-2 border">{{ stock.time_frame }}</td>
-            <td class="px-4 py-2 border">{{ stock.price }}</td>
-            <td class="px-4 py-2 border">{{ stock.indicator }}</td>
-          </tr>
-          {% endfor %} -->
+        {% for stock in Data %}
+        <tr>
+          <td class="px-4 py-2 border">{{ stock.symbol }}</td>
+          <td class="px-4 py-2 border">{{ stock.rsi }}</td>
+          <td class="px-4 py-2 border">{{ stock.macd }}</td>
+          <td class="px-4 py-2 border">{{ stock.adx }}</td>
+          <td class="px-4 py-2 border">
+            <!-- Most Recent Data Point in Single Row -->
+            <div class="flex flex-row text-sm">
+              <div class="flex flex-col mr-4">
+                <span
+                  ><strong>Timestamp:</strong> {{ stock.recent_data.timestamp
+                  }}</span
+                >
+                <span><strong>High:</strong> {{ stock.recent_data.high }}</span>
+                <span><strong>Low:</strong> {{ stock.recent_data.low }}</span>
+              </div>
+              <div class="flex flex-col mr-4">
+                <span
+                  ><strong>Close:</strong> {{ stock.recent_data.close }}</span
+                >
+                <span><strong>Open:</strong> {{ stock.recent_data.open }}</span>
+                <span
+                  ><strong>Volume:</strong> {{ stock.recent_data.volume }}</span
+                >
+              </div>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
