@@ -31,7 +31,7 @@ def home():
             stock_symbol = 'AAPL'
             logger.info("Fetching stock data (home route)")
             Stock_Data= fetch_stock_data(stock_symbol, time_frame)
-            logger.info(f"Data : {Stock_Data}")
+            print(Stock_Data)
 
     except Exception as e:
         logger.error(" Error fetching stock data: {e}")
