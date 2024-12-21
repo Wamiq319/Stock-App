@@ -14,3 +14,4 @@ class StockList(db.Model):
 
     def get_stocks(self):
         return self.stocks.split(",") if self.stocks else []
+ 

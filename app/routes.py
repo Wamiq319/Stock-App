@@ -29,7 +29,7 @@ def home():
             time_frame = data.get('time-frame')
             selected_stock_list = StockList.query.filter_by(id=stock_list_id).first()
             stocks = selected_stock_list.stocks.split(',')
-            print(stocks)
+         
             # Example Usage
             Data = []
             
@@ -161,24 +161,30 @@ def indicator_results():
         if stock_list.stocks and len(stock_list.stocks.split(',')) > 0
     ]
 
-  
+   
     if request.method == 'POST':
-        data = request.form
-        stock_symbol = data.get('stock-symbol')
-        time_frame = data.get('time-frame')
-        Stock_Data= fetch_stock_data(stock_symbol, time_frame)
-        rsi_value = calculate_rsi(Stock_Data)
-        macd_value = calculate_macd(Stock_Data)
-        adx_value = calculate_adx(Stock_Data)
-        most_recent_data = Stock_Data.iloc[0]
-        recent_data = {
-            'timestamp': most_recent_data['UTC-time-zone'].strftime('%Y-%m-%d %H:%M:%S'), 
-            'high': int(most_recent_data['High']), 
-            'low': int(most_recent_data['Low']),   
-            'close': int(most_recent_data['Close']),  
-            'open': int(most_recent_data['Open']),   
-            'volume': int(most_recent_data['Volume'])  
-        }
-        return render_template("indicator_results.html", rsi=rsi_value, macd=macd_value, adx=adx_value, recent_data=recent_data)
+            data = request.form
+            stock_list_id = data.get('stock-list')
+            time_frame = data.get('time-frame')
+            indicator = data.get('indicator')
+            selected_stock_list = StockList.query.filter_by(id=stock_list_id).first()
+            stocks = selected_stock_list.stocks.split(',')
+            
+            # Example Usage
+            Data = [indicator]
+            for stock_symbol in stocks:
+                Stock_Data= fetch_stock_data(stock_symbol, time_frame)
+                print(indicator)
+                if indicator == 'RSI':
+                    rsi_values = calculate_rsi(Stock_Data)
+                    Data.append({"symbol": stock_symbol, "indicator": rsi_values})
+                elif indicator == 'MACD':
+                    macd_values = calculate_macd(Stock_Data) 
+                    Data.append({"symbol": stock_symbol, "indicator": macd_values})
+                elif indicator == 'ADX':
+                    adx_values = calculate_adx(Stock_Data)
+                    
+                    Data.append({"symbol": stock_symbol, "indicator": adx_values,})
+            return render_template("indicator_results.html",stock_lists=stock_lists, Data =Data)
 
     return render_template("indicator_results.html", stock_lists=stock_lists,Data=None)
