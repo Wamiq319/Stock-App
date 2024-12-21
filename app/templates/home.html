@@ -79,12 +79,12 @@ block content %}
         <tr>
           <td class="px-4 py-2 border">{{ stock.symbol }}</td>
           <td class="px-4 py-2 border">
-            {% if stock.rsi > 70 %}
+            {% if stock.rsi < 0 %}
             <span class="text-red-500">Sell</span>
-            {% elif stock.rsi < 30 %}
+            {% elif stock.rsi > 0 %}
             <span class="text-green-500">Buy</span>
             {% else %}
-            <span class="text-gray-500">-</span>
+            <span class="text-gray-500">N/A</span>
             {% endif %}
           </td>
           <td class="px-4 py-2 border">
@@ -93,55 +93,53 @@ block content %}
             {% elif stock.macd > 0 %}
             <span class="text-green-500">Buy</span>
             {% else %}
-            <span class="text-gray-500">-</span>
+            <span class="text-gray-500">N/A</span>
             {% endif %}
           </td>
           <td class="px-4 py-2 border">
-            {% if stock.adx > 40 %} {% if stock.di_minus is defined and
-            stock.di_plus is defined %} {% if stock.di_minus > stock.di_plus %}
+            {% if stock.adx < 0 %}
             <span class="text-red-500">Sell</span>
-            {% elif stock.di_plus > stock.di_minus %}
+            {% elif stock.adx > 0 %}
             <span class="text-green-500">Buy</span>
             {% else %}
-            <span class="text-gray-500">-</span>
-            {% endif %} {% else %}
-            <span class="text-gray-500">-</span>
-            {% endif %} {% else %}
-            <span class="text-gray-500">-</span>
+            <span class="text-gray-500">N/A</span>
             {% endif %}
           </td>
           <td class="px-4 py-2 border">
-            {% set buy_count = 0 %} {% if stock.rsi < 30 %} {% set buy_count =
-            buy_count + 1 %} {% endif %} {% if stock.macd > 0 %} {% set
-            buy_count = buy_count + 1 %} {% endif %} {% if stock.adx > 40 and
-            stock.di_plus is defined and stock.di_minus is defined and
-            stock.di_plus > stock.di_minus %} {% set buy_count = buy_count + 1
-            %} {% endif %} {% if buy_count == 3 %}
-            <span class="text-green-500">3</span>
-            {% elif buy_count == 2 %}
-            <span class="text-green-500">2</span>
-            {% else %}
-            <span class="text-gray-500">-</span>
-            {% endif %}
+            <span class="text-green-500"
+              >{{ stock.rsi + stock.macd + stock.adx }}</span
+            >
           </td>
           <td class="px-4 py-2 border">
             <!-- Most Recent Data Point in Single Row -->
             <div class="flex flex-row text-sm">
-              <div class="flex flex-col mr-4">
-                <span
-                  ><strong>Timestamp-UTC:</strong> {{
+              <div class="flex flex-col mr-4 space-y-2">
+                <span class="text-gray-700"
+                  ><strong class="text-blue-500">Timestamp-UTC:</strong> {{
                   stock.recent_data.timestamp }}</span
                 >
-                <span><strong>High:</strong> {{ stock.recent_data.high }}</span>
-                <span><strong>Low:</strong> {{ stock.recent_data.low }}</span>
-              </div>
-              <div class="flex flex-col mr-4">
-                <span
-                  ><strong>Close:</strong> {{ stock.recent_data.close }}</span
+                <span class="text-green-600"
+                  ><strong class="text-blue-500">High:</strong> {{
+                  stock.recent_data.high }}</span
                 >
-                <span><strong>Open:</strong> {{ stock.recent_data.open }}</span>
-                <span
-                  ><strong>Volume:</strong> {{ stock.recent_data.volume }}</span
+                <span class="text-red-600"
+                  ><strong class="text-blue-500">Low:</strong> {{
+                  stock.recent_data.low }}</span
+                >
+              </div>
+
+              <div class="flex flex-col mr-4 space-y-2">
+                <span class="text-green-600"
+                  ><strong class="text-blue-500">Close:</strong> {{
+                  stock.recent_data.close }}</span
+                >
+                <span class="text-blue-600"
+                  ><strong class="text-blue-500">Open:</strong> {{
+                  stock.recent_data.open }}</span
+                >
+                <span class="text-gray-600"
+                  ><strong class="text-blue-500">Volume:</strong> {{
+                  stock.recent_data.volume }}</span
                 >
               </div>
             </div>

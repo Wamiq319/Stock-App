@@ -45,9 +45,9 @@ def home():
                 'open': int(most_recent_data['Open']),   
                 'volume': int(most_recent_data['Volume'])  
                 }
-
+                
                 Data.append({"symbol": stock_symbol, "rsi": rsi_value, "macd": macd_value, "adx": adx_value, "recent_data": recent_data})
-            
+            print(Data)
             return render_template("home.html", stock_lists=stock_lists,Data=Data)
     except Exception as e:
         logger.error(f"Error fetching stock data: {e}")
