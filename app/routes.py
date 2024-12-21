@@ -28,14 +28,15 @@ def home():
             time_frame = data.get('time-frame')
             selected_stock_list = StockList.query.filter_by(id=stock_list_id).first()
             stocks = selected_stock_list.stocks.split(',')
+            print(stocks)
             # Example Usage
             Data = []
             
             for stock_symbol in stocks:
                 Stock_Data= fetch_stock_data(stock_symbol, time_frame)
-                rsi_value = calculate_rsi(Stock_Data)
-                macd_value = calculate_macd(Stock_Data)
-                adx_value = calculate_adx(Stock_Data)
+                rsi_values = calculate_rsi(Stock_Data)
+                macd_values = calculate_macd(Stock_Data)
+                adx_values = calculate_adx(Stock_Data)
                 most_recent_data = Stock_Data.iloc[0]
                 recent_data = {
                 'timestamp': most_recent_data['UTC-time-zone'].strftime('%Y-%m-%d %H:%M:%S'), 
@@ -46,8 +47,7 @@ def home():
                 'volume': int(most_recent_data['Volume'])  
                 }
                 
-                Data.append({"symbol": stock_symbol, "rsi": rsi_value, "macd": macd_value, "adx": adx_value, "recent_data": recent_data})
-            print(Data)
+                Data.append({"symbol": stock_symbol, "rsi": rsi_values, "macd": macd_values, "adx": adx_values, "recent_data": recent_data})
             return render_template("home.html", stock_lists=stock_lists,Data=Data)
     except Exception as e:
         logger.error(f"Error fetching stock data: {e}")
@@ -130,12 +130,34 @@ def stock_list():
 
 @bp.route('/indicator-results', methods=['GET', 'POST'])
 def indicator_results():
-    indicator_results = [
-        {"symbol": "AAPL", "date": "2024-12-01", "indicator_value": 150},
-        {"symbol": "GOOG", "date": "2024-12-01", "indicator_value": 1250},
-        {"symbol": "AMZN", "date": "2024-12-01", "indicator_value": 3500},
+    stock_lists = [
+        {
+            'id': stock_list.id,
+            'name': stock_list.name,
+            'total_stocks': len(stock_list.stocks.split(',')) if stock_list.stocks else 0
+        }
+        for stock_list in StockList.query.all()
+        if stock_list.stocks and len(stock_list.stocks.split(',')) > 0
     ]
-    selected_stock_list = "Stock List 1"
-    logger.info(f"(indicator-results route) Displaying results for {selected_stock_list}")
 
-    return render_template('indicator_results.html', indicator_results=indicator_results, selected_stock_list=selected_stock_list)
+  
+    if request.method == 'POST':
+        data = request.form
+        stock_symbol = data.get('stock-symbol')
+        time_frame = data.get('time-frame')
+        Stock_Data= fetch_stock_data(stock_symbol, time_frame)
+        rsi_value = calculate_rsi(Stock_Data)
+        macd_value = calculate_macd(Stock_Data)
+        adx_value = calculate_adx(Stock_Data)
+        most_recent_data = Stock_Data.iloc[0]
+        recent_data = {
+            'timestamp': most_recent_data['UTC-time-zone'].strftime('%Y-%m-%d %H:%M:%S'), 
+            'high': int(most_recent_data['High']), 
+            'low': int(most_recent_data['Low']),   
+            'close': int(most_recent_data['Close']),  
+            'open': int(most_recent_data['Open']),   
+            'volume': int(most_recent_data['Volume'])  
+        }
+        return render_template("indicator_results.html", rsi=rsi_value, macd=macd_value, adx=adx_value, recent_data=recent_data)
+
+    return render_template("indicator_results.html", stock_lists=stock_lists,Data=None)

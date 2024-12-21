@@ -29,7 +29,7 @@ def calculate_rsi(df, period=14):
             signal = 0  # N/A
 
         logger.info(f"RSI calculated: {rsi_value:.2f}, Signal: {signal}")
-        return signal
+        return {"signal": signal, "value": round(rsi_value, 2)}
     except Exception as e:
         logger.error(f"Error in RSI calculation: {e}")
         raise
@@ -57,7 +57,7 @@ def calculate_macd(df, fast_period=12, slow_period=26, signal_period=9):
             signal = 0  # N/A
 
         logger.info(f"MACD calculated: {macd_value:.2f}, Signal: {signal}")
-        return signal
+        return {"signal": signal, "value": round(macd_value, 2)}
     except Exception as e:
         logger.error(f"Error in MACD calculation: {e}")
         raise
@@ -101,7 +101,7 @@ def calculate_adx(df, period=14):
             signal = 0  # N/A
 
         logger.info(f"ADX calculated: {adx_value:.2f}, Signal: {signal}")
-        return signal
+        return {"signal": signal, "value": round(adx_value, 2)}
     except Exception as e:
         logger.error(f"Error in ADX calculation: {e}")
         raise

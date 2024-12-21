@@ -7,7 +7,7 @@ block content %}
 </div>
 
 <!-- Selection Section -->
-<form method="GET" class="mt-6 flex justify-between items-center">
+<form method="POST" class="mt-6 flex justify-between items-center">
   <!-- Left Section for Stock List and Time Frame -->
 
   <!-- Stock List Selection -->
@@ -66,48 +66,103 @@ block content %}
     <table class="min-w-full table-auto">
       <thead>
         <tr class="bg-gray-100">
-          <th class="px-4 py-2 border">Stock</th>
+          <th class="px-4 py-2 border">Stock Symbol</th>
           <th class="px-4 py-2 border">RSI</th>
           <th class="px-4 py-2 border">MACD</th>
           <th class="px-4 py-2 border">ADX</th>
-          <th class="px-4 py-2 border">Results</th>
+          <th class="px-4 py-2 border">Trend</th>
           <th class="px-4 py-2 border">Most Recent Data Point</th>
         </tr>
       </thead>
       <tbody>
         {% for stock in Data %}
         <tr>
-          <td class="px-4 py-2 border">{{ stock.symbol }}</td>
+          <td class="px-4 py-2 border font-extrabold">{{ stock.symbol }}</td>
           <td class="px-4 py-2 border">
-            {% if stock.rsi < 0 %}
-            <span class="text-red-500">Sell</span>
-            {% elif stock.rsi > 0 %}
-            <span class="text-green-500">Buy</span>
-            {% else %}
-            <span class="text-gray-500">N/A</span>
-            {% endif %}
+            {{ stock.rsi.value }}-
+            <!-- Conditionally load the appropriate SVG -->
+            <img
+              src="{% if stock.rsi.signal == 1 %}
+                        {{ url_for('static', filename='media/circle_green.svg') }}
+                     {% elif stock.rsi.signal == -1 %}
+                        {{ url_for('static', filename='media/circle_red.svg') }}
+                     {% else %}
+                        {{ url_for('static', filename='media/circle_gray.svg') }}
+                     {% endif %}"
+              alt="Signal Icon"
+              class="w-3 h-3"
+            />
+
+            <span class="font-bold">
+              {% if stock.rsi.signal == 1 %}
+              <span class="text-green-500">Buy</span>
+              {% elif stock.rsi.signal == -1 %}
+              <span class="text-red-500">Sell</span>
+              {% else %}
+              <span class="text-gray-500">N/A</span>
+              {% endif %}
+            </span>
           </td>
+          <!-- MACD INDICTOR RESULT  -->
           <td class="px-4 py-2 border">
-            {% if stock.macd < 0 %}
-            <span class="text-red-500">Sell</span>
-            {% elif stock.macd > 0 %}
-            <span class="text-green-500">Buy</span>
-            {% else %}
-            <span class="text-gray-500">N/A</span>
-            {% endif %}
+            <span class="text-gray-500">
+              {{ stock.rsi.value }} -
+              <!-- Conditionally load the appropriate SVG -->
+              <img
+                src="{% if stock.rsi.signal == 1 %}
+                        {{ url_for('static', filename='media/circle_green.svg') }}
+                     {% elif stock.rsi.signal == -1 %}
+                        {{ url_for('static', filename='media/circle_red.svg') }}
+                     {% else %}
+                        {{ url_for('static', filename='media/circle_gray.svg') }}
+                     {% endif %}"
+                alt="Signal Icon"
+                class="w-5 h-5"
+              />
+            </span>
+
+            <span>
+              {% if stock.rsi.signal == 1 %}
+              <span class="text-green-500">Buy</span>
+              {% elif stock.rsi.signal == -1 %}
+              <span class="text-red-500">Sell</span>
+              {% else %}
+              <span class="text-gray-500">N/A</span>
+              {% endif %}
+            </span>
           </td>
+          <!-- ADX indictor result   -->
           <td class="px-4 py-2 border">
-            {% if stock.adx < 0 %}
-            <span class="text-red-500">Sell</span>
-            {% elif stock.adx > 0 %}
-            <span class="text-green-500">Buy</span>
-            {% else %}
-            <span class="text-gray-500">N/A</span>
-            {% endif %}
+            <span class="text-gray-500">
+              {{ stock.rsi.value }} -
+              <!-- Conditionally load the appropriate SVG -->
+              <img
+                src="{% if stock.rsi.signal == 1 %}
+                        {{ url_for('static', filename='media/circle_green.svg') }}
+                     {% elif stock.rsi.signal == -1 %}
+                        {{ url_for('static', filename='media/circle_red.svg') }}
+                     {% else %}
+                        {{ url_for('static', filename='media/circle_gray.svg') }}
+                     {% endif %}"
+                alt="Signal Icon"
+                class="w-5 h-5"
+              />
+            </span>
+
+            <span>
+              {% if stock.rsi.signal == 1 %}
+              <span class="text-green-500">Buy</span>
+              {% elif stock.rsi.signal == -1 %}
+              <span class="text-red-500">Sell</span>
+              {% else %}
+              <span class="text-gray-500">N/A</span>
+              {% endif %}
+            </span>
           </td>
           <td class="px-4 py-2 border">
             <span class="text-green-500"
-              >{{ stock.rsi + stock.macd + stock.adx }}</span
+              >{{ stock.rsi.signal + stock.macd.signal + stock.adx.signal
+              }}</span
             >
           </td>
           <td class="px-4 py-2 border">
