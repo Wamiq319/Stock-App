@@ -1,6 +1,4 @@
-import pandas as pd
 from .. import setup_logger
-
 # Logger setup
 logger = setup_logger("INDICATORS-UTILS")
 

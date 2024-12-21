@@ -4,18 +4,22 @@ from datetime import datetime, timedelta
 import traceback
 from .. import setup_logger
 
+
 # Logger setup
 logger = setup_logger("Stock-Utils")
 
-# Alpaca API details
-ALPACA_API_KEY = 'PKB57FN6PC18Q3MUF2PE'
-ALPACA_API_SECRET = 'zmX3oNYBrA4AqbOtfSxxXnvNdGccDeVHfQl5uzha'
-ALPACA_BASE_URL = 'https://data.alpaca.markets/v2/stocks/bars'
 
-# Alpha Vantage API details
-ALPHA_VANTAGE_API_KEY = 'X4VE8829GA6AZNHI'
-ALPHA_VANTAGE_URL = 'https://www.alphavantage.co/query'
+# Load environment variables from .env file
+load_dotenv()
 
+# Access Alpaca API details
+ALPACA_API_KEY = os.getenv('ALPACA_API_KEY')
+ALPACA_API_SECRET = os.getenv('ALPACA_API_SECRET')
+ALPACA_BASE_URL = os.getenv('ALPACA_BASE_URL')
+
+# Access Alpha Vantage API details
+ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
+ALPHA_VANTAGE_URL = os.getenv('ALPHA_VANTAGE_URL')
 
 def fetch_alpaca_data(stock_symbol, timeframe_hours, interval_hours):
     """
