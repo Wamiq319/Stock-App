@@ -9,60 +9,61 @@ block content %}
 </div>
 
 <!-- Form for selecting filters -->
-<form
-  method="POST"
-  action="{{ url_for('main.indicator_results') }}"
-  class="mt-6 flex justify-between items-center"
->
+<form method="POST" class="mt-6 flex justify-between items-center">
   <!-- Time Frame Dropdown -->
   <div class="w-1/4 px-2">
-    <label for="time-frame" class="block text-sm font-medium text-gray-700 mb-2"
-      >Select Time Frame</label
+    <label
+      for="time-frame"
+      class="block text-sm font-medium text-gray-700 mb-2"
     >
+      Select Time Frame
+    </label>
     <select
       id="time-frame"
       name="time-frame"
       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
     >
-      <option value="1D">1 Day</option>
-      <option value="1W">1 Week</option>
-      <option value="1M">1 Month</option>
-      <option value="3M">3 Months</option>
-      <option value="6M">6 Months</option>
-      <option value="1Y">1 Year</option>
+      <option value="1D">Daily</option>
+      <option value="23H">23 Hours</option>
+      <option value="8H">8 Hours</option>
+      <option value="1H">1 Hour</option>
     </select>
   </div>
 
   <!-- Stock List Dropdown -->
   <div class="w-1/4 px-2">
-    <label for="stock-list" class="block text-sm font-medium text-gray-700 mb-2"
-      >Select Stock List</label
+    <label
+      for="stock-list"
+      class="block text-sm font-medium text-gray-700 mb-2"
     >
+      Choose Stock List
+    </label>
     <select
       id="stock-list"
       name="stock-list"
       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
     >
-      <option value="stocklist1">Stock List 1</option>
-      <option value="stocklist2">Stock List 2</option>
-      <option value="stocklist3">Stock List 3</option>
+      {% for stock_list in stock_lists %}
+      <option value="{{ stock_list.id }}">
+        {{ stock_list.name }} ({{ stock_list.total_stocks }} stocks)
+      </option>
+      {% endfor %}
     </select>
   </div>
 
   <!-- Indicator Dropdown -->
   <div class="w-1/4 px-2">
-    <label for="indicator" class="block text-sm font-medium text-gray-700 mb-2"
-      >Select Indicator</label
-    >
+    <label for="indicator" class="block text-sm font-medium text-gray-700 mb-2">
+      Choose the Indicator
+    </label>
     <select
       id="indicator"
       name="indicator"
       class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
     >
-      <option value="moving_average">Moving Average</option>
       <option value="rsi">RSI (Relative Strength Index)</option>
       <option value="macd">MACD</option>
-      <option value="bollinger_bands">Bollinger Bands</option>
+      <option value="adx">ADX (A)</option>
     </select>
   </div>
 
@@ -102,5 +103,11 @@ block content %}
       {% endfor %}
     </tbody>
   </table>
+</div>
+{% else %}
+<div class="mt-8">
+  <p class="text-xl font-bold mb-4">
+    Please choose a stock-list time frame and indicator to see the results.
+  </p>
 </div>
 {% endif %} {% endblock %}
