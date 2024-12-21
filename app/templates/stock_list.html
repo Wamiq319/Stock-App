@@ -1,16 +1,24 @@
-{% extends "base.html" %} {% block title %}Stock List - Stock App{% endblock %}
-{% block content %}
-<!-- Header Section -->
-<div
-  class="flex justify-between items-center bg-blue-400 text-gray-100 p-8 rounded-md"
->
-  <h1 class="text-3xl font-bold">Available Stock List</h1>
-  <a
-    class="bg-white text-blue-400 px-6 py-2 rounded-md hover:bg-gray-100 font-bold"
-    href="/create-stock"
+{% extends "base.html" %} {% block title %} Stock List - Stock App {% endblock
+%} {% block content %}
+<!-- Flash Message Notification -->
+{% with messages = get_flashed_messages(with_categories=true) %} {% if messages
+%}
+<div class="fixed top-0 right-0 mt-4 mr-4 z-50">
+  {% for category, message in messages %}
+  <div
+    class="bg-{{ 'green' if category == 'success' else 'red' }}-500 text-white p-4 rounded-md shadow-lg mb-4 transition-all duration-300"
+    id="flash-message"
+    role="alert"
   >
-    Add Stocklist
-  </a>
+    <span>{{ message }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %} {% endwith %}
+
+<!-- Header Banner -->
+<div class="bg-blue-400 shadow-lg text-gray-100 p-8 rounded-md text-center">
+  <h1 class="text-3xl font-bold">Available Stock List</h1>
 </div>
 
 <!-- Table Section -->
@@ -34,24 +42,21 @@
           <td class="px-4 py-2 border">
             {% for stock in stock_list.stocks %}
             <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-md mr-2">
-              {{ stock}}
+              {{ stock }}
             </span>
             {% endfor %}
           </td>
           <td class="px-4 py-2 border">
-            <!-- Link to stock details or delete -->
-            <a
-              href="/stock/{{ stock_list.id }}"
-              class="text-blue-600 hover:text-blue-800"
-            >
-              View
-            </a>
-            <button
-              class="text-red-600 hover:text-red-800 ml-4"
-              onclick="deleteStock(stock_list.id )"
-            >
-              Delete
-            </button>
+            <!-- Delete Button Form -->
+            <form method="POST" action="/stock-list">
+              <input type="hidden" name="stockId" value="{{ stock_list.id }}" />
+              <button
+                type="submit"
+                class="text-red-600 hover:text-red-800 ml-4"
+              >
+                Delete
+              </button>
+            </form>
           </td>
         </tr>
         {% endfor %}
@@ -60,13 +65,16 @@
   </div>
 </div>
 
-<!-- JavaScript to handle delete action -->
+<!-- Flash Message Handling -->
 <script>
-  function deleteStock(stockId) {
-    if (confirm("Are you sure you want to delete this stock?")) {
-      // Call backend to delete stock using stockId
-      alert("Delete functionality for stock ID: " + stockId);
+  // Automatically hide flash message after 5 seconds
+  setTimeout(() => {
+    const flashMessage = document.getElementById("flash-message");
+    if (flashMessage) {
+      flashMessage.classList.add("opacity-0");
+      setTimeout(() => flashMessage.remove(), 500);
     }
-  }
+  }, 5000);
 </script>
+
 {% endblock %}

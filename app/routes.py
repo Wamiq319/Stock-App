@@ -1,4 +1,4 @@
-from flask import Blueprint, request, flash, render_template, redirect, url_for
+from flask import Blueprint, request, jsonify,flash, render_template, redirect, url_for
 from . import db
 from .models import StockList
 from app.utils.stocks_utils import fetch_stock_data
@@ -24,6 +24,7 @@ def home():
     try: 
         if request.method == 'POST':
             data = request.form
+            
             stock_list_id = data.get('stock-list')
             time_frame = data.get('time-frame')
             selected_stock_list = StockList.query.filter_by(id=stock_list_id).first()
@@ -110,23 +111,43 @@ def create_or_update_stock():
 
     return render_template('stock_form.html', stock=stock, is_update=bool(stock))
 
-@bp.route('/stock-list', methods=['GET'])
+
+@bp.route('/stock-list', methods=['GET', 'POST'])
 def stock_list():
     try:
-        stock_groups = [
-            {
-                'id': stock_list.id,
-                'name': stock_list.name,
-                'stocks': stock_list.stocks.split(',') if stock_list.stocks else []
-            }
-            for stock_list in StockList.query.all()
-        ]
-        logger.info(f"(stock-list route) Prepared {len(stock_groups)} stock groups")
-    except Exception as e:
-        logger.error(f"(stock-list route) Error preparing stock list: {e}")
-        stock_groups = []
+        # Handle GET request: Fetch all stock lists
+        if request.method == 'GET':
+            stock_groups = [
+                {
+                    'id': stock_list.id,
+                    'name': stock_list.name,
+                    'stocks': stock_list.stocks.split(',') if stock_list.stocks else []
+                }
+                for stock_list in StockList.query.all()
+            ]
+            logger.info(f"(stock-list route) Prepared {len(stock_groups)} stock groups")
+            return render_template('stock_list.html', stock_lists=stock_groups)
 
-    return render_template('stock_list.html', stock_lists=stock_groups)
+        # Handle POST request for deleting a stock list
+        if request.method == 'POST':
+            stock_id = request.form.get('stockId')  # Get stock list ID from form data
+            stock_list = StockList.query.get(stock_id)  # Query the database for the stock list
+
+            if stock_list:
+                db.session.delete(stock_list)  # Delete the stock list from the database
+                db.session.commit()
+                flash(f"Stock list '{stock_list.name}' deleted successfully.", "success")
+                logger.info(f"(stock-list route) Deleted stock list with ID: {stock_id}")
+            else:
+                flash(f"Stock list with ID {stock_id} not found.", "error")
+                logger.error(f"(stock-list route) Stock list with ID {stock_id} not found.")
+
+            return redirect(url_for('stocks.stock_list'))
+
+    except Exception as e:
+        logger.error(f"(stock-list route) Error handling stock list request: {e}")
+        flash('An error occurred while processing your request.', 'error')
+        return redirect(url_for('stocks.stock_list'))
 
 @bp.route('/indicator-results', methods=['GET', 'POST'])
 def indicator_results():
