@@ -5,6 +5,7 @@ from app.utils.stocks_utils import fetch_stock_data
 from app.utils.indicators_utils import calculate_rsi,calculate_adx,calculate_macd
 from . import setup_logger
 
+
 bp = Blueprint('stocks', __name__)
 
 logger = setup_logger("ROUTES")
