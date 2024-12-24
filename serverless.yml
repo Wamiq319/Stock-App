@@ -5,7 +5,7 @@ provider:
   runtime: python3.12 # Use Python 3.12 as it is now supported by AWS Lambda
   region: eu-west-2 # Set the region of your Lambda function
 
-functions:cle
+functions:
   app:
     handler: wsgi.handler # WSGI handler for Flask
     events:
