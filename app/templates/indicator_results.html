@@ -81,7 +81,10 @@ block content %}
 {% if Data %}
 <!-- Results Table -->
 <div class="mt-6 mx-auto w-full bg-white shadow-md rounded-lg p-6">
-  <h2 class="text-xl font-bold mb-6 text-center">Results for {{ Data[0] }}</h2>
+  <h2 class="text-xl font-bold mb-6 text-center">
+    Results of {{ Data[0].indicator }} Data for {{Data[0].stock_list_name}} with
+    time frame of {{ Data[0].time_frame }}
+  </h2>
 
   <table class="min-w-full table-auto border-collapse">
     <thead>

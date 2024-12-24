@@ -56,156 +56,157 @@ block content %}
 
 <!-- Results Section -->
 {% if Data %}
-<div class="mt-8">
-  <h2 class="text-xl font-bold mb-4">Stock Data Results</h2>
-
+<div class="mt-6 mx-auto w-full bg-white shadow-md rounded-lg p-6">
+  <h2 class="text-xl font-bold mb-6 text-center">
+    Showing results for {{ Data[0].stock_list_name }} with time frame of {{
+    Data[0].time_frame }}
+  </h2>
   <!-- Stock Data Table -->
-  <div class="overflow-x-auto bg-white shadow rounded-lg">
-    <table class="min-w-full table-auto">
-      <thead>
-        <tr class="bg-gray-100">
-          <th class="px-4 py-2 border">Stock Symbol</th>
-          <th class="px-4 py-2 border">RSI</th>
-          <th class="px-4 py-2 border">MACD</th>
-          <th class="px-4 py-2 border">ADX</th>
-          <th class="px-4 py-2 border">Trend</th>
-          <th class="px-4 py-2 border">Most Recent Data Point</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for stock in Data %}
-        <tr>
-          <td class="px-4 py-2 border font-bold text-center">
-            {{ stock.symbol }}
-          </td>
 
-          <!-- RSI Indicator Result -->
-          <td class="border text-center">
-            <div class="flex justify-center items-center space-x-2">
-              <span>{{ stock.rsi.value }}</span>
-              <img
-                src="{% if stock.rsi.signal == 1 %}
+  <table class="min-w-full table-auto">
+    <thead>
+      <tr class="bg-gray-100">
+        <th class="px-4 py-2 border">Stock Symbol</th>
+        <th class="px-4 py-2 border">RSI</th>
+        <th class="px-4 py-2 border">MACD</th>
+        <th class="px-4 py-2 border">ADX</th>
+        <th class="px-4 py-2 border">Trend</th>
+        <th class="px-4 py-2 border">Most Recent Data Point</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for stock in Data %} {% if not loop.first %}
+      <tr>
+        <td class="px-4 py-2 border font-bold text-center">
+          {{ stock.symbol }}
+        </td>
+
+        <!-- RSI Indicator Result -->
+        <td class="border text-center">
+          <div class="flex justify-center items-center space-x-2">
+            <span>{{ stock.rsi.value }}</span>
+            <img
+              src="{% if stock.rsi.signal == 1 %}
                         {{ url_for('static', filename='media/circle_green.svg') }}
                      {% elif stock.rsi.signal == -1 %}
                         {{ url_for('static', filename='media/circle_red.svg') }}
                      {% else %}
                         {{ url_for('static', filename='media/circle_gray.svg') }}
                      {% endif %}"
-                alt="Signal Icon"
-              />
-              <span class="font-bold">
-                {% if stock.rsi.signal == 1 %}
-                <span class="text-green-500">Buy</span>
-                {% elif stock.rsi.signal == -1 %}
-                <span class="text-red-500">Sell</span>
-                {% else %}
-                <span class="text-gray-500">N/A</span>
-                {% endif %}
-              </span>
-            </div>
-          </td>
+              alt="Signal Icon"
+            />
+            <span class="font-bold">
+              {% if stock.rsi.signal == 1 %}
+              <span class="text-green-500">Buy</span>
+              {% elif stock.rsi.signal == -1 %}
+              <span class="text-red-500">Sell</span>
+              {% else %}
+              <span class="text-gray-500">N/A</span>
+              {% endif %}
+            </span>
+          </div>
+        </td>
 
-          <!-- MACD Indicator Result -->
-          <td class="border text-center">
-            <div class="flex justify-center items-center space-x-2">
-              <span>{{ stock.macd.value }}</span>
-              <img
-                src="{% if stock.macd.signal == 1 %}
+        <!-- MACD Indicator Result -->
+        <td class="border text-center">
+          <div class="flex justify-center items-center space-x-2">
+            <span>{{ stock.macd.value }}</span>
+            <img
+              src="{% if stock.macd.signal == 1 %}
                         {{ url_for('static', filename='media/circle_green.svg') }}
                      {% elif stock.macd.signal == -1 %}
                         {{ url_for('static', filename='media/circle_red.svg') }}
                      {% else %}
                         {{ url_for('static', filename='media/circle_gray.svg') }}
                      {% endif %}"
-                alt="Signal Icon"
-              />
-              <span class="font-bold">
-                {% if stock.macd.signal == 1 %}
-                <span class="text-green-500">Buy</span>
-                {% elif stock.macd.signal == -1 %}
-                <span class="text-red-500">Sell</span>
-                {% else %}
-                <span class="text-gray-500">N/A</span>
-                {% endif %}
-              </span>
-            </div>
-          </td>
+              alt="Signal Icon"
+            />
+            <span class="font-bold">
+              {% if stock.macd.signal == 1 %}
+              <span class="text-green-500">Buy</span>
+              {% elif stock.macd.signal == -1 %}
+              <span class="text-red-500">Sell</span>
+              {% else %}
+              <span class="text-gray-500">N/A</span>
+              {% endif %}
+            </span>
+          </div>
+        </td>
 
-          <!-- ADX Indicator Result -->
-          <td class="border text-center">
-            <div class="flex justify-center items-center space-x-2">
-              <span>{{ stock.adx.value }}</span>
-              <img
-                src="{% if stock.adx.signal == 1 %}
+        <!-- ADX Indicator Result -->
+        <td class="border text-center">
+          <div class="flex justify-center items-center space-x-2">
+            <span>{{ stock.adx.value }}</span>
+            <img
+              src="{% if stock.adx.signal == 1 %}
                         {{ url_for('static', filename='media/circle_green.svg') }}
                      {% elif stock.adx.signal == -1 %}
                         {{ url_for('static', filename='media/circle_red.svg') }}
                      {% else %}
                         {{ url_for('static', filename='media/circle_gray.svg') }}
                      {% endif %}"
-                alt="Signal Icon"
-              />
-              <span class="font-bold">
-                {% if stock.adx.signal == 1 %}
-                <span class="text-green-500">Buy</span>
-                {% elif stock.adx.signal == -1 %}
-                <span class="text-red-500">Sell</span>
-                {% else %}
-                <span class="text-gray-500">N/A</span>
-                {% endif %}
-              </span>
-            </div>
-          </td>
-
-          <!-- Trend and Most Recent Data Point -->
-          <td class="px-4 py-2 border text-center">
-            <span
-              class="text-green-500 flex justify-center items-center space-x-2"
-            >
-              {{ stock.rsi.signal + stock.macd.signal + stock.adx.signal }}
+              alt="Signal Icon"
+            />
+            <span class="font-bold">
+              {% if stock.adx.signal == 1 %}
+              <span class="text-green-500">Buy</span>
+              {% elif stock.adx.signal == -1 %}
+              <span class="text-red-500">Sell</span>
+              {% else %}
+              <span class="text-gray-500">N/A</span>
+              {% endif %}
             </span>
-          </td>
+          </div>
+        </td>
 
-          <td class="px-4 py-2 border">
-            <div class="flex flex-row text-sm">
-              <div class="flex flex-col mr-4 space-y-2">
-                <span class="text-gray-700"
-                  ><strong class="text-blue-500">Timestamp-UTC:</strong> {{
-                  stock.recent_data.timestamp }}</span
-                >
-                <span class="text-gray-600"
-                  ><strong class="text-blue-500">Volume:</strong> {{
-                  stock.recent_data.volume }}</span
-                >
-              </div>
+        <!-- Trend and Most Recent Data Point -->
+        <td class="px-4 py-2 border text-center">
+          <span
+            class="text-green-500 flex justify-center items-center space-x-2"
+          >
+            {{ stock.rsi.signal + stock.macd.signal + stock.adx.signal }}
+          </span>
+        </td>
 
-              <div class="flex flex-col mr-4 space-y-2">
-                <span class="text-green-600"
-                  ><strong class="text-blue-500">High:</strong> {{
-                  stock.recent_data.high }}</span
-                >
-                <span class="text-red-600"
-                  ><strong class="text-blue-500">Low:</strong> {{
-                  stock.recent_data.low }}</span
-                >
-              </div>
-              <div class="flex flex-col mr-4 space-y-2">
-                <span class="text-green-600"
-                  ><strong class="text-blue-500">Close:</strong> {{
-                  stock.recent_data.close }}</span
-                >
-                <span class="text-blue-600"
-                  ><strong class="text-blue-500">Open:</strong> {{
-                  stock.recent_data.open }}</span
-                >
-              </div>
+        <td class="px-4 py-2 border">
+          <div class="flex flex-row text-sm">
+            <div class="flex flex-col mr-4 space-y-2">
+              <span class="text-gray-700"
+                ><strong class="text-blue-500">Timestamp-UTC:</strong> {{
+                stock.recent_data.timestamp }}</span
+              >
+              <span class="text-gray-600"
+                ><strong class="text-blue-500">Volume:</strong> {{
+                stock.recent_data.volume }}</span
+              >
             </div>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+
+            <div class="flex flex-col mr-4 space-y-2">
+              <span class="text-green-600"
+                ><strong class="text-blue-500">High:</strong> {{
+                stock.recent_data.high }}</span
+              >
+              <span class="text-red-600"
+                ><strong class="text-blue-500">Low:</strong> {{
+                stock.recent_data.low }}</span
+              >
+            </div>
+            <div class="flex flex-col mr-4 space-y-2">
+              <span class="text-green-600"
+                ><strong class="text-blue-500">Close:</strong> {{
+                stock.recent_data.close }}</span
+              >
+              <span class="text-blue-600"
+                ><strong class="text-blue-500">Open:</strong> {{
+                stock.recent_data.open }}</span
+              >
+            </div>
+          </div>
+        </td>
+      </tr>
+      {% endif %} {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% else %}
 <div class="mt-8">

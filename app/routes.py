@@ -22,6 +22,8 @@ def home():
         if stock_list.stocks and len(stock_list.stocks.split(',')) > 0
     ]
 
+    Data = None  # Initialize Data outside try-catch so it always exists.
+
     try: 
         if request.method == 'POST':
             data = request.form
@@ -30,32 +32,41 @@ def home():
             time_frame = data.get('time-frame')
             selected_stock_list = StockList.query.filter_by(id=stock_list_id).first()
             stocks = selected_stock_list.stocks.split(',')
-         
-            # Example Usage
-            Data = []
+
+            # Initialize Data in POST request
+            Data = [{"stock_list_name": selected_stock_list.name, "time_frame": time_frame}]
             
             for stock_symbol in stocks:
-                Stock_Data= fetch_stock_data(stock_symbol, time_frame)
+                Stock_Data = fetch_stock_data(stock_symbol, time_frame)
                 rsi_values = calculate_rsi(Stock_Data)
                 macd_values = calculate_macd(Stock_Data)
                 adx_values = calculate_adx(Stock_Data)
                 most_recent_data = Stock_Data.iloc[0]
                 recent_data = {
-                'timestamp': most_recent_data['UTC-time-zone'].strftime('%Y-%m-%d %H:%M:%S'), 
-                'high': int(most_recent_data['High']), 
-                'low': int(most_recent_data['Low']),   
-                'close': int(most_recent_data['Close']),  
-                'open': int(most_recent_data['Open']),   
-                'volume': int(most_recent_data['Volume'])  
+                    'timestamp': most_recent_data['UTC-time-zone'].strftime('%Y-%m-%d %H:%M:%S'), 
+                    'high': int(most_recent_data['High']), 
+                    'low': int(most_recent_data['Low']),   
+                    'close': int(most_recent_data['Close']),  
+                    'open': int(most_recent_data['Open']),   
+                    'volume': int(most_recent_data['Volume'])  
                 }
                 
-                Data.append({"symbol": stock_symbol, "rsi": rsi_values, "macd": macd_values, "adx": adx_values, "recent_data": recent_data})
-            return render_template("home.html", stock_lists=stock_lists,Data=Data)
+                Data.append({
+                    "symbol": stock_symbol, 
+                    "rsi": rsi_values, 
+                    "macd": macd_values, 
+                    "adx": adx_values, 
+                    "recent_data": recent_data
+                })
+                
     except Exception as e:
         logger.error(f"Error fetching stock data: {e}")
         flash("Failed to fetch stock data", "error")
+        Data = None  # Ensure Data is set to None if there’s an error
 
-    return render_template("home.html", stock_lists=stock_lists,Data=None)
+    # Return the template with stock_lists and Data
+    return render_template("home.html", stock_lists=stock_lists, Data=Data)
+
 
 @bp.route('/create-stock', methods=['GET', 'POST'])
 def create_or_update_stock():
@@ -162,7 +173,7 @@ def indicator_results():
         if stock_list.stocks and len(stock_list.stocks.split(',')) > 0
     ]
 
-   
+    Data = None  # Initialize Data outside try-catch so it always exists.
     if request.method == 'POST':
             data = request.form
             stock_list_id = data.get('stock-list')
@@ -172,7 +183,7 @@ def indicator_results():
             stocks = selected_stock_list.stocks.split(',')
             
             # Example Usage
-            Data = [indicator]
+            Data = [{"indicator":indicator, "time_frame": time_frame,"stock_list_name":selected_stock_list.name}]
             for stock_symbol in stocks:
                 Stock_Data= fetch_stock_data(stock_symbol, time_frame)
                 print(indicator)
