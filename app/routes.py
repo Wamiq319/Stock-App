@@ -42,8 +42,9 @@ def home():
                 macd_values = calculate_macd(Stock_Data)
                 adx_values = calculate_adx(Stock_Data)
                 most_recent_data = Stock_Data.iloc[0]
+                print(most_recent_data)
                 recent_data = {
-                    'timestamp': most_recent_data['UTC-time-zone'].strftime('%Y-%m-%d %H:%M:%S'), 
+                    'timestamp': most_recent_data['UTC-time-zone'], 
                     'high': int(most_recent_data['High']), 
                     'low': int(most_recent_data['Low']),   
                     'close': int(most_recent_data['Close']),  
