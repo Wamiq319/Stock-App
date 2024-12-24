@@ -3,9 +3,9 @@ service: stockAppMyExperiment
 provider:
   name: aws
   runtime: python3.12 # Use Python 3.12 as it is now supported by AWS Lambda
-  region: us-east-1 # Set the region of your Lambda function
+  region: eu-west-2 # Set the region of your Lambda function
 
-functions:
+functions:cle
   app:
     handler: wsgi.handler # WSGI handler for Flask
     events:
