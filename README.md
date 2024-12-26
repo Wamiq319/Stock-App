@@ -24,3 +24,15 @@ python run.py
   ```
 Your development server will start, and you can view the application
 locally at http://127.0.0.1:5000/.
+#To use taiwlind in the project stylinf
+1.Install dependencies through 
+```bash
+npm install
+```
+After making hcages in css and adding classws to generate the css 
+```bash
+npx tailwindcss -i app/static/css/input.css -o app/static/css/tailwind.css
+```
+This will generate css in static css tailwind.css file
+
+
