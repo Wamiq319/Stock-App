@@ -1,6 +1,11 @@
 # Flask App for Stock Analysis
 
 This is a simple Flask web application that utilizes the **Alpaca API** for stock analysis and displays indicator results.
+This project was build for stiven on fiver.The Peoblem Statement of the project was this.
+
+
+So after reading the statement I choose flask for application tech Stack as it include some data manipulation so I chose pandas for that.
+
 
 ## Installation
 
