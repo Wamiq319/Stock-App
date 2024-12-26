@@ -58,6 +58,7 @@ The website will generate results for each stock, showing how each indicator has
 ## Technologies Used
 
 - **Flask**: Web framework for building the website.
+- *Tailwind CSS**: Utility-first CSS framework for designing responsive and customizable user interfaces.
 - **Alpaca API**: For stock analysis and trading data.
 - **NGINX**: Web server used to reverse proxy the Flask application.
 - **Gunicorn**: WSGI HTTP server for running the Flask app in production.
