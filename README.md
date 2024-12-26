@@ -6,9 +6,9 @@ This is a simple Flask web application that utilizes the **Alpaca API** for stoc
 The purpose of this project is to create a website that helps in analyzing investment opportunities and tracking portfolios. The website will have two main functionalities:
 
 1. **Opportunity Analysis**: This will evaluate a variety of technical indicators to identify potential investment opportunities.
-2. **Portfolio Tracking**: This will integrate with Google Sheets to display data about closed trades (profit/loss) and the live portfolio (current profit/loss).
 
-The website is initially connected to the **IG Index API**, but this is not essential. It’s used because it allows a high number of API calls (40 per minute for demo accounts). To prevent exceeding the API limits, stock data will be stored in `.txt` files, with a limit of 10 stocks per file.
+
+The website was developed from scratch, and the IG Index API was suggested by the user to be used initially for fetching stock data. The reason for this choice is that the IG Index API allows a high number of API calls (40 per minute for demo accounts). To prevent exceeding the API limits, stock data will be stored in .txt files, with a limit of 10 stocks per file.
 
 ## Features
 
@@ -31,14 +31,8 @@ This section allows you to run simple technical indicators against predetermined
         - ADX above 40 and DI- above DI+ → Price is falling (Sell)
         - ADX above 40 and DI+ above DI- → Price is rising (Buy)
 
-### 2. Portfolio Tracking
-The portfolio tracking section will read data from Google Sheets to display:
-
-- **Closed Trades**: Profit/Loss information for completed trades.
-- **Live Portfolio**: Current profit/loss for ongoing investments.
-
 ### Stock Symbol Lists
-The stock symbols will be grouped into lists stored in `.txt` files. These lists will contain a maximum of 10 stocks each. You will be able to create multiple stock lists, such as:
+The stock symbols will be grouped into lists stored in `.txt` files (So i give a page to client so he can create stock lists on website). These lists will contain a maximum of 10 stocks each. You will be able to create multiple stock lists, such as:
 
 - **USA Stocks**
 - **UK Stocks**
