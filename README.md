@@ -53,6 +53,18 @@ The website will generate results for each stock, showing how each indicator has
 
 - **N/A**: Indicates that the RSI value is between 30 and 70 or the ADX value is below 40.
 - **Results**: The number of indicators that give the same outcome (Buy/Sell).
+  ## Technologies Used
+
+## Technologies Used
+
+- **Flask**: Web framework for building the website.
+- **Alpaca API**: For stock analysis and trading data.
+- **NGINX**: Web server used to reverse proxy the Flask application.
+- **Gunicorn**: WSGI HTTP server for running the Flask app in production.
+- **GitHub**: For version control and collaboration on the project.
+- **Git**: Distributed version control system for managing code.
+- **AWS EC2**: For hosting the website on the cloud.
+
 
 ## Installation
 
