@@ -38,7 +38,7 @@
         </ul>
         <!-- Stock Upload Button -->
         <a
-          href="/create-stock"
+          href="{{ url_for('stocks.create_or_update_stock') }}"
           class="bg-blue-400 shadow-xl text-gray-50 px-6 py-2 rounded-md hover:bg-blue-500 font-bold"
         >
           <i class="fas fa-plus mr-2"></i> Stock Upload

@@ -2,7 +2,7 @@
 *.pyc
 *.pyo
 __pycache__
-venv/
+myvenv/
 
 # Node.js
 node_modules/
