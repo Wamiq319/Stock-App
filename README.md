@@ -1,6 +1,6 @@
 # MyExperiment.com Shares (Stock-App)
 
-This is a simple Flask web application that utilizes the **Alpaca API** for stock analysis and displays indicator results. This project was built for Steven on Fiverr. The problem statement for the project was as follows:
+This is a simple Flask web application that utilizes the **Alpaca API** for stock analysis and displays indicator results you can visist the app here http://13.40.214.188/. This project was built for Steven on Fiverr. The problem statement for the project was as follows:
 
 ## Problem Statement
 The purpose of this project is to create a website that helps in analyzing investment opportunities and tracking portfolios. The website will have two main functionalities:
