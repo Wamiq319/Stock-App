@@ -8,7 +8,7 @@ The purpose of this project is to create a website that helps in analyzing inves
 1. **Opportunity Analysis**: This will evaluate a variety of technical indicators to identify potential investment opportunities.
 
 
-The website was developed from scratch, and the IG Index API was suggested by the user to be used initially for fetching stock data. The reason for this choice is that the IG Index API allows a high number of API calls (40 per minute for demo accounts). To prevent exceeding the API limits, stock data will be stored in .txt files, with a limit of 10 stocks per file.
+The website has ti be developed from scratch, and the IG Index API can be used initially for fetching stock data. The reason for this choice is that the IG Index API allows a high number of API calls (40 per minute for demo accounts). To prevent exceeding the API limits, stock data will be stored in .txt files, with a limit of 10 stocks per file.
 
 ## Features
 
